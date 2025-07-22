@@ -28,7 +28,7 @@ export function Modal({ isOpen, onClose, title, children, size = "md" }) {
       <div className="flex min-h-screen items-center justify-center p-2 sm:p-4">
         {/* Backdrop */}
         <div
-          className="fixed inset-0 bg-black bg-opacity-60 backdrop-blur-sm transition-all duration-300"
+          className="fixed inset-0 bg-black/50 bg-opacity-60 backdrop-blur-sm transition-all duration-300"
           onClick={onClose}
         ></div>
 
