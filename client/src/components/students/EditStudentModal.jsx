@@ -91,7 +91,15 @@ export function EditStudentModal({ isOpen, onClose, student, onSave }) {
 
     setIsSubmitting(true)
     try {
-      await onSave(student._id, formData)
+      const submitData = {
+        fullname: formData.fullname,
+        email: formData.email,
+        DOB: formData.DOB,
+        class: formData.class,
+        profileImage: formData.profileImage,
+      }
+
+      await onSave(student._id, submitData)
       onClose()
     } catch (error) {
       console.error("Error updating student:", error)

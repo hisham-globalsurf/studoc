@@ -1,6 +1,5 @@
 import Student from "../models/student.js";
 import CustomError from "../utils/customError.js";
-import cloudinary from "../utils/cloudinary.js";
 
 export const getAllStudents = async () => {
   return await Student.find();

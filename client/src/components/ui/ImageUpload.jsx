@@ -8,16 +8,23 @@ export function ImageUpload({ value, onChange, error, disabled = false }) {
   const fileInputRef = useRef(null)
 
   useEffect(() => {
-    if (value && value.trim()) {
-      setPreview(value)
-      setImageError(false)
+    if (value) {
+      if (typeof value === "string") {
+        setPreview(value)
+        setImageError(false)
+      } else if (value instanceof File) {
+        const objectUrl = URL.createObjectURL(value)
+        setPreview(objectUrl)
+        setImageError(false)
+        return () => {
+          URL.revokeObjectURL(objectUrl)
+        }
+      }
     } else {
       setPreview(null)
       setImageError(false)
     }
   }, [value])
-
-  
 
   const handleFileSelect = async (file) => {
     if (!file) return
@@ -38,23 +45,12 @@ export function ImageUpload({ value, onChange, error, disabled = false }) {
     setImageError(false)
 
     try {
-      const reader = new FileReader()
-      reader.onload = (e) => {
-        const imageUrl = e.target.result
-        setPreview(imageUrl)
-        onChange(imageUrl)
-        setIsUploading(false)
-      }
-      reader.onerror = (e) => {
-        console.error("FileReader error:", e)
-        alert("Error reading file. Please try again.")
-        setIsUploading(false)
-        setImageError(true)
-      }
-      reader.readAsDataURL(file)
+      // Pass the File object directly to parent component
+      onChange(file)
+      setIsUploading(false)
     } catch (error) {
-      console.error("Error uploading file:", error)
-      alert("Error uploading file. Please try again.")
+      console.error("Error handling file:", error)
+      alert("Error processing file. Please try again.")
       setIsUploading(false)
       setImageError(true)
     }
@@ -94,6 +90,10 @@ export function ImageUpload({ value, onChange, error, disabled = false }) {
   }
 
   const removeImage = () => {
+    if (preview && preview.startsWith("blob:")) {
+      URL.revokeObjectURL(preview)
+    }
+
     setPreview(null)
     setImageError(false)
     onChange("")
@@ -143,7 +143,7 @@ export function ImageUpload({ value, onChange, error, disabled = false }) {
               {isUploading ? (
                 <div className="flex flex-col items-center space-y-3">
                   <div className="w-8 h-8 border-2 border-emerald-600 border-t-transparent rounded-full animate-spin"></div>
-                  <p className="text-sm text-gray-600">Uploading image...</p>
+                  <p className="text-sm text-gray-600">Processing image...</p>
                 </div>
               ) : (
                 <>
@@ -222,6 +222,14 @@ export function ImageUpload({ value, onChange, error, disabled = false }) {
                   </div>
                 </div>
               </div>
+
+              {/* File Info */}
+              {value instanceof File && (
+                <div className="text-center">
+                  <p className="text-xs text-gray-500 truncate">{value.name}</p>
+                  <p className="text-xs text-gray-400">{(value.size / 1024 / 1024).toFixed(2)} MB</p>
+                </div>
+              )}
             </div>
           </div>
         )}

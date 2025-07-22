@@ -1,3 +1,5 @@
+"use client"
+
 import { useEffect, useState } from "react"
 import { useDispatch, useSelector } from "react-redux"
 import {
@@ -6,13 +8,15 @@ import {
   deleteStudentById,
   toggleStudentStatus,
   createNewStudent,
-} from "../features/student/studentSlice"
+} from "@/features/student/studentSlice"
 import { StudentsHeader } from "../components/students/StudentsHeader"
 import { SearchAndSort } from "../components/students/SearchAndSort"
 import { StudentsGrid } from "../components/students/StudentsGrid"
 import { EditStudentModal } from "../components/students/EditStudentModal"
 import { AddStudentModal } from "../components/students/AddStudentModal"
 import { useStudentFilter } from "../hooks/useStudentFilter"
+import { useConfirmation } from "../hooks/useConfirmation"
+import { ConfirmationDialog } from "../components/ui/ConfirmationDialog"
 
 export function StudentsPage() {
   const dispatch = useDispatch()
@@ -21,6 +25,7 @@ export function StudentsPage() {
   const [editingStudent, setEditingStudent] = useState(null)
   const [isEditModalOpen, setIsEditModalOpen] = useState(false)
   const [isAddModalOpen, setIsAddModalOpen] = useState(false)
+  const { confirm, isOpen, handleClose, confirmationState } = useConfirmation()
 
   const { filteredStudents, searchTerm, sortOption, handleSearch, handleSort, filteredCount } =
     useStudentFilter(students)
@@ -39,21 +44,48 @@ export function StudentsPage() {
   }
 
   const handleDelete = async (id) => {
-    if (window.confirm("Are you sure you want to delete this student?")) {
+    const studentToDelete = students.find((s) => s._id === id)
+    const studentName = studentToDelete?.fullname || "this student"
+
+    const confirmed = await confirm({
+      title: "Delete Student",
+      message: `Are you sure you want to delete ${studentName}? This action cannot be undone.`,
+      confirmText: "Yes, Delete",
+      cancelText: "Cancel",
+      confirmVariant: "danger",
+      icon: "delete",
+    })
+
+    if (confirmed) {
       await dispatch(deleteStudentById(id))
     }
   }
 
   const handleToggleStatus = async (id) => {
-    await dispatch(toggleStudentStatus(id))
+    const studentToToggle = students.find((s) => s._id === id)
+    const newStatus = !studentToToggle.isActive
+    const statusText = newStatus ? "activate" : "deactivate"
+
+    const confirmed = await confirm({
+      title: `${newStatus ? "Activate" : "Deactivate"} Student`,
+      message: `Are you sure you want to ${statusText} ${studentToToggle.fullname}?`,
+      confirmText: `Yes, ${newStatus ? "Activate" : "Deactivate"}`,
+      cancelText: "Cancel",
+      confirmVariant: newStatus ? "primary" : "secondary",
+      icon: "info",
+    })
+
+    if (confirmed) {
+      await dispatch(toggleStudentStatus(id))
+    }
   }
 
   const handleAddStudent = () => {
     setIsAddModalOpen(true)
   }
 
-  const handleSaveNewStudent = async (formData) => {
-    await dispatch(createNewStudent(formData))
+  const handleSaveNewStudent = async (data) => {
+    await dispatch(createNewStudent(data))
   }
 
   const activeStudents = students.filter((student) => student.isActive).length
@@ -119,6 +151,19 @@ export function StudentsPage() {
           isOpen={isAddModalOpen}
           onClose={() => setIsAddModalOpen(false)}
           onSave={handleSaveNewStudent}
+        />
+
+        {/* Confirmation Dialog */}
+        <ConfirmationDialog
+          isOpen={isOpen}
+          onClose={handleClose}
+          onConfirm={confirmationState.onConfirm}
+          title={confirmationState.title}
+          message={confirmationState.message}
+          confirmText={confirmationState.confirmText}
+          cancelText={confirmationState.cancelText}
+          confirmVariant={confirmationState.confirmVariant}
+          icon={confirmationState.icon}
         />
       </div>
     </div>

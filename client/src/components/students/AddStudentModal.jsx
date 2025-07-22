@@ -1,5 +1,3 @@
-"use client"
-
 import { useState } from "react"
 import { Modal } from "../ui/Modal"
 import { Input } from "../ui/Input"
@@ -81,7 +79,15 @@ export function AddStudentModal({ isOpen, onClose, onSave }) {
 
     setIsSubmitting(true)
     try {
-      await onSave(formData)
+      const submitData = {
+        fullname: formData.fullname,
+        email: formData.email,
+        DOB: formData.DOB,
+        class: formData.class,
+        profileImage: formData.profileImage, 
+      }
+
+      await onSave(submitData)
       handleClose()
     } catch (error) {
       console.error("Error adding student:", error)

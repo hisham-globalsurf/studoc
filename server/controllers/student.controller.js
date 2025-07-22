@@ -22,7 +22,7 @@ export const createStudent = async (req, res, next) => {
   try {
     const data = {
       ...req.body,
-      profileImage: req.file?.path, // Cloudinary URL
+      profileImage: req.file?.path,
     };
 
     const student = await studentService.addStudent(data);

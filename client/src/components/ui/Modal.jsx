@@ -39,7 +39,7 @@ export function Modal({ isOpen, onClose, title, children, size = "md" }) {
           {/* Header */}
           <div className="px-4 sm:px-6 py-4 sm:py-5 border-b border-gray-100 bg-gradient-to-r from-emerald-50 to-teal-50 rounded-t-3xl">
             <div className="flex items-center justify-between">
-              <h3 className="text-lg sm:text-xl font-bold text-gray-900 bg-gradient-to-r from-emerald-600 to-teal-600 bg-clip-text text-transparent">
+              <h3 className="text-lg sm:text-xl font-bold bg-gradient-to-r from-emerald-600 to-teal-600 bg-clip-text text-transparent">
                 {title}
               </h3>
               <button

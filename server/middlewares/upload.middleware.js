@@ -6,11 +6,13 @@ const storage = new CloudinaryStorage({
   cloudinary,
   params: {
     folder: 'student_profiles',
-    allowed_formats: ['jpg', 'jpeg', 'png'],
     transformation: [{ width: 500, height: 500, crop: 'limit' }],
   },
 });
 
-const upload = multer({ storage });
-
+const upload = multer({
+  storage, limits: {
+    fieldSize: 5 * 1024 * 1024,
+  },
+});
 export default upload;

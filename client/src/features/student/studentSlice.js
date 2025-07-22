@@ -40,6 +40,7 @@ export const createNewStudent = createAsyncThunk(
       toast.success("Student created successfully");
       return res;
     } catch (err) {
+            console.log(err);
       toast.error(err.response?.data?.message || err.message);
       return thunkAPI.rejectWithValue(err.response?.data?.message || err.message);
     }
